@@ -173,71 +173,6 @@
     .ip-actions button { background:transparent; border:1px solid rgba(255,255,255,0.08); color:#ddd; padding:8px 10px; border-radius:6px; cursor:pointer; font-weight:600; }
     .ip-actions button.primary { background:#0f3b6d; border-color:#0f3b6d; color:#fff; }
 
-    /* 반응형 조정: 모바일에서 중앙 컬럼을 항상 보존(요청사항 반영)
-       -> 기존처럼 세로 스택으로 바꾸지 않고, 사이드바 폭을 축소함 */
-    @media (max-width: 900px) {
-      .slider { height: 220px; }
-      .icon-buttons { padding: 0 16px; gap:12px; }
-      .icon-button img { width:56px; height:56px; }
-      .community-box { flex: 0 0 150px; min-width:120px; max-width:180px; }
-    }
-
-    @media (max-width: 700px) {
-      /* 전체 여백 축소 */
-      .site-content { padding: 0 8px; }
-
-      /* 슬라이더, 프리젠테이션 축소 */
-      .slider { height: 140px; border-radius:10px; }
-      .presentation-carousel { height:140px; flex:0 0 140px; }
-      .middle-box { min-height: 220px; padding:12px; }
-
-      /* 핵심: 모바일에서 가로 3컬럼 유지
-         - 사이드바 폭을 좁혀 중앙영역이 항상 보이도록 함
-         - 사이드바 내부 텍스트는 줄바꿈되지만 폭이 좁아져도 중앙은 우선
-      */
-      .community-section {
-        flex-direction: row;  /* 가로 유지 */
-        align-items: flex-start;
-        gap: 10px;
-        overflow-x: hidden;
-      }
-
-      .community-box {
-        flex: 0 0 86px;      /* 사이드바를 좁혀 중앙이 보이게 함 */
-        max-width: 86px;
-        min-width: 64px;
-        padding: 8px;
-      }
-
-      .community-list a {
-        font-size: 13px;
-        line-height: 1.2;
-        display:block;
-        white-space: normal; /* 줄바꿈 허용 (좁은 폭에서 세로로 표시) */
-        overflow-wrap:break-word;
-      }
-
-      .community-title {
-        font-size: 13px;
-        text-align: left;
-      }
-
-      /* 가운데 컬럼 유지 (순서 변경 없음) */
-      .middle-column {
-        flex: 1 1 auto;
-        min-width: 0;
-        max-width: calc(100% - 200px); /* 보수적 여유: 좌우 사이드바 합(약 86px*2) 제외 */
-      }
-
-      .icon-buttons { padding: 0 8px; gap:10px; }
-      .icon-button img { width:48px; height:48px; }
-      .icon-button span { font-size:12px; }
-
-      .pres-title { font-size:16px; }
-      .pres-desc { font-size:13px; }
-
-      .sub-lower { flex-direction: column; }
-    }
 
   </style>
 </head>
@@ -853,3 +788,4 @@
   <footer style="background:#111; color:#ccc; font-size:12px; padding:20px; text-align:center; line-height:1.5;">
     <a href="library.html?section=terms" style="color:#ccc; text-decoration:none; margin:0 4.5px;">이용약관</a> |
     <a href="library.html?section=privacy" style="color:#ccc; text-decoration:none; margin:0 4.
+
