@@ -194,7 +194,7 @@
       /* 핵심: 모바일에서 가로 3컬럼 유지
          - 사이드바 폭을 좁혀 중앙영역이 항상 보이도록 함
          - 사이드바 내부 텍스트는 줄바꿈되지만 폭이 좁아져도 중앙은 우선
-       */
+      */
       .community-section {
         flex-direction: row;  /* 가로 유지 */
         align-items: flex-start;
@@ -497,11 +497,11 @@
     <div class="modal-content" role="document">
       <button class="modal-close" onclick="closeModal('loginModal')" aria-label="닫기">&times;</button>
       <div class="modal-inner">
-        <div class="modal-brand" style="display:flex; gap:12px; align-items:center;">
+        <div class="modal-brand">
           <img src="https://i.imgur.com/dsAyje0.png" alt="브랜드" style="width:56px;height:56px;border-radius:8px;">
           <div>
-            <h2 id="loginTitle" style="margin:0;">로그인</h2>
-            <p style="margin:0;font-size:13px;color:#ccc;">계정으로 로그인하여 커뮤니티 참여를 시작하세요.</p>
+            <h2 id="loginTitle">로그인</h2>
+            <p>계정으로 로그인하여 커뮤니티 참여를 시작하세요.</p>
           </div>
         </div>
       </div>
@@ -511,17 +511,17 @@
           <input type="email" id="loginEmail" placeholder="이메일" />
         </label>
 
-        <label class="field password-field" style="position:relative;">
+        <label class="field password-field">
           <input type="password" id="loginPass" placeholder="비밀번호" />
-          <button type="button" class="pw-toggle" data-target="loginPass" aria-label="비밀번호 보기" style="position:absolute; right:10px; top:8px; background:transparent; border:none; color:#ddd; cursor:pointer;">👁️</button>
+          <button type="button" class="pw-toggle" data-target="loginPass" aria-label="비밀번호 보기">👁️</button>
         </label>
 
-        <div class="modal-actions" style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+        <div class="modal-actions">
           <label style="font-size:13px;color:#ccc;"><input type="checkbox" id="rememberMe" style="margin-right:6px;"/> 로그인 유지</label>
           <a href="#" style="font-size:13px;color:#ffae42;text-decoration:none;">비밀번호 찾기</a>
         </div>
 
-        <button id="loginSubmit" class="primary-btn" style="margin-top:12px;">로그인</button>
+        <button id="loginSubmit" class="primary-btn">로그인</button>
 
         <div style="display:flex;gap:8px;margin-top:8px;">
           <button class="alt-btn">카카오로 시작</button>
@@ -535,11 +535,11 @@
     <div class="modal-content" role="document">
       <button class="modal-close" onclick="closeModal('signupModal')" aria-label="닫기">&times;</button>
       <div class="modal-inner">
-        <div class="modal-brand" style="display:flex; gap:12px; align-items:center;">
+        <div class="modal-brand">
           <img src="https://i.imgur.com/mmOgQb3.png" alt="회원가입" style="width:56px;height:56px;border-radius:8px;">
           <div>
-            <h2 id="signupTitle" style="margin:0;">회원가입</h2>
-            <p style="margin:0;font-size:13px;color:#ccc;">닉네임을 입력하고 간단히 가입하세요.</p>
+            <h2 id="signupTitle">회원가입</h2>
+            <p>닉네임을 입력하고 간단히 가입하세요.</p>
           </div>
         </div>
       </div>
@@ -551,12 +551,12 @@
         <label class="field">
           <input type="email" id="signupEmail" placeholder="이메일" />
         </label>
-        <label class="field password-field" style="position:relative;">
+        <label class="field password-field">
           <input type="password" id="signupPass" placeholder="비밀번호" />
-          <button type="button" class="pw-toggle" data-target="signupPass" aria-label="비밀번호 보기" style="position:absolute; right:10px; top:8px; background:transparent; border:none; color:#ddd; cursor:pointer;">👁️</button>
+          <button type="button" class="pw-toggle" data-target="signupPass" aria-label="비밀번호 보기">👁️</button>
         </label>
 
-        <button id="signupSubmit" class="primary-btn" style="margin-top:8px;">회원가입</button>
+        <button id="signupSubmit" class="primary-btn">회원가입</button>
 
         <div style="display:flex;gap:8px;margin-top:8px;">
           <button class="alt-btn">이메일 인증</button>
@@ -586,12 +586,10 @@
     const auth = getAuth(app);
 
     window.openModal = function(id) {
-      const el = document.getElementById(id);
-      if (el) el.style.display = "flex";
+      document.getElementById(id).style.display = "flex";
     }
     window.closeModal = function(id) {
-      const el = document.getElementById(id);
-      if (el) el.style.display = "none";
+      document.getElementById(id).style.display = "none";
     }
 
     function updateHeader(user) {
@@ -622,73 +620,42 @@
       }
     }
 
-    const signupSubmitBtn = document.getElementById("signupSubmit");
-    if (signupSubmitBtn) {
-      signupSubmitBtn.addEventListener("click", async () => {
-        const nickname = document.getElementById("signupNickname").value;
-        const email = document.getElementById("signupEmail").value;
-        const pass = document.getElementById("signupPass").value;
-        try {
-          const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-          try { await updateProfile(userCredential.user, { displayName: nickname }); } catch(e) { /* ignore */ }
-          updateHeader(userCredential.user);
-          alert("회원가입 완료!");
-          closeModal("signupModal");
-        } catch (error) {
-          alert("회원가입 실패: " + (error && error.message ? error.message : error));
-        }
-      });
-    }
+    document.getElementById("signupSubmit").addEventListener("click", async () => {
+      const nickname = document.getElementById("signupNickname").value;
+      const email = document.getElementById("signupEmail").value;
+      const pass = document.getElementById("signupPass").value;
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        await updateProfile(userCredential.user, { displayName: nickname });
+        updateHeader(userCredential.user);
+        alert("회원가입 완료!");
+        closeModal("signupModal");
+      } catch (error) {
+        alert("회원가입 실패: " + error.message);
+      }
+    });
 
-    const loginSubmitBtn = document.getElementById("loginSubmit");
-    if (loginSubmitBtn) {
-      loginSubmitBtn.addEventListener("click", async () => {
-        const email = document.getElementById("loginEmail").value;
-        const pass = document.getElementById("loginPass").value;
-        try {
-          const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-          updateHeader(userCredential.user);
-          alert("로그인 성공!");
-          closeModal("loginModal");
-        } catch (error) {
-          alert("로그인 실패: " + (error && error.message ? error.message : error));
-        }
-      });
-    }
+    document.getElementById("loginSubmit").addEventListener("click", async () => {
+      const email = document.getElementById("loginEmail").value;
+      const pass = document.getElementById("loginPass").value;
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+        updateHeader(userCredential.user);
+        alert("로그인 성공!");
+        closeModal("loginModal");
+      } catch (error) {
+        alert("로그인 실패: " + error.message);
+      }
+    });
 
-    const logoutBtnEl = document.getElementById("logoutBtn");
-    if (logoutBtnEl) {
-      logoutBtnEl.addEventListener("click", async () => {
-        try {
-          await signOut(auth);
-          updateHeader(null);
-        } catch(e) { console.error(e); }
-      });
-    }
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      updateHeader(null);
+    });
 
     onAuthStateChanged(auth, (user) => {
       updateHeader(user);
     });
-  </script>
-
-  <!-- 비밀번호 보기 토글 스크립트 -->
-  <script>
-    (function() {
-      document.querySelectorAll('.pw-toggle').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const targetId = btn.getAttribute('data-target');
-          const input = document.getElementById(targetId);
-          if (!input) return;
-          if (input.type === 'password') {
-            input.type = 'text';
-            btn.setAttribute('aria-pressed','true');
-          } else {
-            input.type = 'password';
-            btn.setAttribute('aria-pressed','false');
-          }
-        });
-      });
-    })();
   </script>
 
   <!-- 슬라이더 스크립트 -->
@@ -710,11 +677,9 @@
       showSlide(index);
     }
 
-    if (dots) {
-      dots.forEach((dot, i) => {
-        dot.addEventListener("click", () => showSlide(i));
-      });
-    }
+    dots.forEach((dot, i) => {
+      dot.addEventListener("click", () => showSlide(i));
+    });
 
     setInterval(autoSlide, 4000);
   </script>
@@ -744,7 +709,7 @@
         presIndex = n;
         presSlides.style.transform = `translateX(${-n * 100}%)`;
         presDots.forEach(d => d.classList.remove("active"));
-        if (presDots[n]) presDots[n].classList.add("active");
+        presDots[n].classList.add("active");
       }
 
       function presAuto() {
@@ -772,7 +737,6 @@
       const leftLinks = document.querySelectorAll('.community-section .community-box:first-of-type .community-list a');
 
       const ipModal = document.getElementById('ipCheckModal');
-      if (!ipModal) return;
       const ipClose = ipModal.querySelector('.ip-close');
       const ipCloseBtn = document.getElementById('ipCloseBtn');
       const ipRetryBtn = document.getElementById('ipRetryBtn');
@@ -792,13 +756,13 @@
 
       function openIpModal(communityName){
         clearIpTimers();
-        if (ipStepsEl) ipStepsEl.querySelectorAll('li').forEach(li => li.classList.remove('done'));
-        if (ipFinal) ipFinal.style.display = 'none';
-        if (ipDummy) ipDummy.textContent = `(${randomDummyIP()})`;
+        ipStepsEl.querySelectorAll('li').forEach(li => li.classList.remove('done'));
+        ipFinal.style.display = 'none';
+        ipDummy.textContent = `(${randomDummyIP()})`;
         ipModal.style.display = 'flex';
         ipModal.setAttribute('aria-hidden','false');
 
-        const steps = ipStepsEl ? Array.from(ipStepsEl.querySelectorAll('li')) : [];
+        const steps = Array.from(ipStepsEl.querySelectorAll('li'));
         steps.forEach((stepEl, i) => {
           const t = setTimeout(() => {
             stepEl.classList.add('done');
@@ -808,11 +772,9 @@
 
         const totalDelay = 700 + steps.length * 800 + 600;
         const finalTimer = setTimeout(() => {
-          if (ipFinal) {
-            ipFinal.textContent = '해당 아이피는 유니온 밴블리온의 서버에서 승인된 아이피가 아닙니다.';
-            ipFinal.classList.remove('accept');
-            ipFinal.style.display = 'block';
-          }
+          ipFinal.textContent = '해당 아이피는 유니온 밴블리온의 서버에서 승인된 아이피가 아닙니다.';
+          ipFinal.classList.remove('accept');
+          ipFinal.style.display = 'block';
         }, totalDelay);
         ipTimers.push(finalTimer);
       }
@@ -836,9 +798,9 @@
         });
       });
 
-      if (ipClose) ipClose.addEventListener('click', closeIpModal);
-      if (ipCloseBtn) ipCloseBtn.addEventListener('click', closeIpModal);
-      if (ipRetryBtn) ipRetryBtn.addEventListener('click', () => { openIpModal('다시검사'); });
+      ipClose.addEventListener('click', closeIpModal);
+      ipCloseBtn.addEventListener('click', closeIpModal);
+      ipRetryBtn.addEventListener('click', () => { openIpModal('다시검사'); });
 
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && ipModal.style.display === 'flex') closeIpModal(); });
       ipModal.addEventListener('click', (e) => { if (e.target === ipModal) closeIpModal(); });
@@ -890,15 +852,4 @@
   <!-- footer (원본 유지) -->
   <footer style="background:#111; color:#ccc; font-size:12px; padding:20px; text-align:center; line-height:1.5;">
     <a href="library.html?section=terms" style="color:#ccc; text-decoration:none; margin:0 4.5px;">이용약관</a> |
-    <a href="library.html?section=privacy" style="color:#ccc; text-decoration:none; margin:0 4.5px;">개인정보처리방침</a> |
-    <a href="library.html?section=contact" style="color:#ccc; text-decoration:none; margin:0 4.5px;">문의하기</a>
-    <div style="margin-top:8px; color:#777;">&copy; <span id="currentYear"></span> BANBLE LEON. All rights reserved.</div>
-  </footer>
-
-  <script>
-    // 푸터 연도 자동 업데이트
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
-  </script>
-
-</body>
-</html>
+    <a href="library.html?section=privacy" style="color:#ccc; text-decoration:none; margin:0 4.
