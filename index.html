@@ -1,28 +1,46 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <link rel="icon" type="image/png" href="favicon.png">
   <meta charset="UTF-8">
-  <title>내 커뮤니티 메인</title>
+  <title>유피드 밴블리온</title>
   <style>
+  /* -------------------------
+       기본 안정화 (수정 포인트)
+       ------------------------- */
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; padding: 0; background-color: #1c1c1c; color: #fff; font-family: Arial, sans-serif; -webkit-font-smoothing:antialiased; }
+
+    /* 전체 내용 폭을 제어하는 공통 클래스:
+       데스크톱에선 넓이 제한(max-width), 모바일에선 100%로 동작 */
+    .site-content {
+      width: 100%;
+      /* 변경: 전체 가로폭을 약간 줄여 좌우 여백(마진)을 더 확보합니다 */
+      max-width: 970px;
+      margin: 0 auto;
+      padding: 0 12px;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #1c1c1c; /* 어두운 회색 배경 */
+      background-color: #1c1c1c;
       color: #fff;
     }
 
     /* 헤더 */
     header {
-      background-color: #003d80; /* 더 진한 파란색 (남색 느낌) */
+      background-color: #003d80;
       color: white;
-      padding: 10px 25px;
+      padding: 11px 25px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
     header .logo {
-      font-size: 18px;
+      font-size: 19.8px;
       font-weight: bold;
     }
 
@@ -31,22 +49,23 @@
       text-decoration: none;
       margin-left: 15px;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 15.4px;
       transition: color 0.3s;
+      cursor: pointer;
     }
 
     header .auth-buttons a:hover {
-      color: #ffcc00; /* hover 시 포인트 */
+      color: #ffcc00;
     }
 
     /* 공지 텍스트 박스 */
     .notice-box {
-      width: 70%; /* 슬라이드와 동일한 폭 */
+      width: 70%;
       margin: 15px auto 0 auto;
       text-align: left;
-      font-size: 18px;
+      font-size: 19.8px;
       font-weight: bold;
-      color: #ffae42; /* 연한 주황색 */
+      color: #ffae42;
     }
 
     /* 슬라이더 */
@@ -54,26 +73,29 @@
       position: relative;
       width: 70%;
       margin: 10px auto;
-      height: 250px;
+      height: 275px;
       overflow: hidden;
       border-radius: 15px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
 
+    /* 변경: slides 너비 고정값(300%) 제거 -> 100% (자식 요소를 overflow로 배치)
+       그리고 각 이미지가 슬라이더 폭을 정확히 차지하도록 flex 지정 */
     .slides {
       display: flex;
-      width: 300%;
+      width: 100%;
       height: 100%;
       transition: transform 0.6s ease-in-out;
     }
 
     .slides img {
+      /* 각 이미지가 슬라이더(뷰포트) 전체 너비를 차지하도록 고정 */
+      flex: 0 0 100%;
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    /* 슬라이드 네비게이션 (점) */
     .dots {
       text-align: center;
       margin-top: 10px;
@@ -93,57 +115,809 @@
       background-color: #003d80;
     }
 
-    /* 커뮤니티 목록 */
+    /* ============================
+       변경된: 커뮤니티(좌-중-우) 관련 스타일
+       (오직 이 블록만 수정됨)
+       ============================ */
+
+    /* 컨테이너 폭 제한을 두어 전체 블록이 중앙에 정렬되게 함.
+       데스크톱에서는 width:70% 유지 + max-width 제한으로 중앙 고정.
+    */
     .community-section {
       width: 70%;
-      margin: 40px auto;
+      max-width: 1100px; /* 전체가 화면을 벗어나지 않도록 상한값 지정 */
+      margin: 25px auto 0 auto;
       display: flex;
-      justify-content: space-between;
+      justify-content: space-between; /* 좌/중/우 균등 배치 */
+      align-items: flex-start;
+      gap: 20px;
+      box-sizing: border-box;
+      padding: 0 12px; /* 좌우 여백을 주어 작은 화면에서 밀착 방지 */
+      /* allow wrapping if needed (but we'll force mobile stacking in media query) */
+      flex-wrap: nowrap;
     }
 
+    /* 사이드바(왼쪽/오른쪽) : flex 고정폭으로 설정 (데스크톱 기준) */
+    .community-box {
+      background-color: #242424;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+
+      flex: 0 0 180px;   /* 데스크톱 기본 너비(두 개 합이 가운데 컬럼과 잘 맞게) */
+      max-width: 220px;
+      min-width: 120px;
+
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      box-sizing: border-box;
+    }
+
+    /* 가운데 컬럼이 너무 넓어져서 옆 박스가 밀려나가지 않도록 min-width/ max-width 설정.
+       flex-basis + min-width:0을 통해 flex 아이템 축소 허용 (오버플로우 방지) */
+    .middle-column {
+      flex: 1 1 auto; /* 남은 공간 차지 */
+      min-width: 0;   /* 핵심: 자식 요소가 너무 커서 부모를 밀어내지 않게 함 */
+      max-width: calc(100% - 380px); /* (사이드바 180px * 2) + gap 여유를 빼서 중앙 컬럼 폭 제한 */
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+      box-sizing: border-box;
+    }
+
+    /* 제목 */
+    .community-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #ffae42;
+
+      /* 제목도 줄바꿈 규칙 적용 (한글 글자별 분리 방지) */
+      word-break: keep-all;
+      overflow-wrap: normal;
+      white-space: normal;
+    }
+
+    /* 커뮤니티 리스트와 링크: 한글 단위 분리 방지 */
     .community-list {
       list-style: none;
       padding: 0;
+      margin: 0;
+      width: 100%;
+
+      word-break: keep-all;
+      overflow-wrap: normal;
+      white-space: normal;
     }
 
     .community-list li {
-      margin: 10px 0;
+      margin: 8px 0;
+      line-height: 1.4;
+
+      word-break: keep-all;
+      overflow-wrap: normal;
     }
 
     .community-list a {
       color: #ddd;
       text-decoration: none;
-      font-size: 15px;
+      font-size: 16px;
+      font-weight: normal;
       transition: color 0.3s;
+
+      word-break: keep-all;
+      overflow-wrap: normal;
+      white-space: normal;
     }
 
     .community-list a:hover {
-      color: #ffae42; /* hover 시 강조 */
+      color: #ffae42;
     }
+
+    /* 왼/오른쪽 커뮤니티 바로 아래 뉴스 박스는 사이즈와 줄바꿈 규칙을 동일하게 적용 */
+    .news-box {
+      width: 100%;
+      margin-top: 12px;
+      background-color: #1f1f1f;
+      padding: 8px;
+      border-radius: 8px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.4);
+      box-sizing: border-box;
+
+      word-break: keep-all;
+      overflow-wrap: normal;
+      white-space: normal;
+    }
+
+    .news-list { list-style:none; padding:0; margin:0; }
+    .news-list li {
+      margin:6px 0;
+      word-break: keep-all;
+      overflow-wrap: normal;
+    }
+
+    /* 작은 화면(태블릿 이하): 중앙영역의 max-width 제거하고 레이아웃이 자연스럽게 줄어들게 함 */
+    @media (max-width: 900px) {
+      .community-section {
+        width: 92%;
+        max-width: 920px;
+        padding: 0 10px;
+        gap: 14px;
+      }
+      .community-box {
+        flex: 0 0 150px;
+        min-width: 120px;
+        max-width: 180px;
+      }
+      .middle-column {
+        max-width: calc(100% - 300px);
+      }
+    }
+
+    /* 모바일(좁은 스마트폰): 세로 스택으로 전환하여 오버플로우 완전 제거.
+       (이 동작은 모바일에서만 적용되므로 데스크톱 레이아웃에는 영향 없음) */
+    @media (max-width: 700px) {
+      .community-section {
+        flex-direction: column; /* 세로 스택: 중앙 컨텐츠가 맨 위로 오게 하거나 순서 변경 가능 */
+        width: 92%;
+        align-items: stretch;
+        gap: 12px;
+      }
+
+      .middle-column {
+        order: -1; /* 모바일에서 중앙 컨텐츠(버튼+중앙박스)를 맨 위로 올림 */
+        max-width: none;
+        min-width: 0;
+      }
+
+      .community-box {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      .community-list a {
+        font-size: 14px;
+      }
+    }
+
+    /* ============================
+       (변경된 블록 끝)
+       ============================ */
+
+    /* 버튼 UI: 중앙 컬럼 상단에 배치, 버튼들 사이를 균등 분배
+       -> 변경 포인트: 좌우 패딩를 늘려 양끝 버튼과 사이드 박스 거리 확보 */
+    .icon-buttons {
+      width: 100%;
+      display: flex;
+      justify-content: space-between; /* 버튼들을 컬럼 너비에 따라 균등 분배 (사진처럼 1/4 간격) */
+      align-items: flex-start; /* 버튼의 top y 좌표를 커뮤니티 박스 상단과 같게 유지 */
+      padding: 0 48px; /* <-- 좌우 여백으로 양끝 버튼과 커뮤니티 박스 사이 거리 확보 */
+      box-sizing: border-box;
+      margin: 0; /* 슬라이더 아래 바로 정렬되도록 여백 제거 */
+      gap: 24px; /* 버튼 사이 간격 여유 */
+    }
+
+    .icon-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      flex: 1 1 0; /* 가변 너비로 균등 분배되도록 함 */
+      max-width: 120px;
+      min-width: 80px; /* 너무 좁아지지 않도록 최소 너비 설정 */
+    }
+
+    .icon-button img {
+      width: 72px;  /* 사진과 비슷한 크기감으로 조정 */
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 8px;
+      border: 2px solid #fff;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      background: #222;
+    }
+
+    .icon-button img:hover {
+      transform: scale(1.06);
+    }
+
+    .icon-button span {
+      font-size: 14px;
+      color: #ddd;
+    }
+
+    /* 중앙 세션 박스 (버튼의 바로 아래에 위치) */
+    .middle-box {
+      background-color: #242424;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      padding: 20px;
+      margin: 0 0 0 0;
+      min-height: 110px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .middle-box span {
+      font-size: 16px;
+      color: #ddd;
+    }
+
+    /* 모달 공통 (변경: 로그인/회원가입 모달을 세련되게 개선) */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* .modal-content은 로그인/회원가입 모달에만 적용됩니다. (다른 모달은 ip-modal을 사용)
+       더 모던한 글래스모피즘 스타일로 디자인했습니다. */
+    .modal-content {
+      width: 420px;
+      max-width: calc(100% - 40px);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding: 18px;
+      border-radius: 12px;
+      color: white;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.03);
+      backdrop-filter: blur(6px) saturate(120%);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-sizing: border-box;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      color: #ddd;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      padding: 6px;
+      border-radius: 8px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.02); color:#fff; }
+
+    .modal-inner { display:flex; gap:12px; align-items:flex-start; }
+    .modal-brand { display:flex; align-items:center; gap:12px; }
+
+    .modal-content h2 { margin:0; font-size:20px; }
+    .modal-content p { margin:0; color:#ccc; font-size:13px; }
+
+    .modal-content input[type="email"],
+    .modal-content input[type="password"],
+    .modal-content input[type="text"] {
+      width: 100%;
+      margin: 8px 0 0 0;
+      padding: 12px 44px 12px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+      box-sizing: border-box;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .modal-content input::placeholder { color: rgba(255,255,255,0.45); }
+
+    .modal-actions { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
+
+    .modal-content button {
+      margin-top: 10px;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .primary-btn {
+      width:100%;
+      background: linear-gradient(90deg,#0f61b0,#0a3e7a);
+      color:#fff;
+      box-shadow: 0 6px 18px rgba(15,97,176,0.16);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .alt-btn {
+      flex:1;
+      padding:8px 10px;
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+      color:#ddd;
+      border-radius:8px;
+      font-size:13px;
+    }
+
+    .password-field { position: relative; }
+    .pw-toggle {
+      position: absolute;
+      right: 8px; top: 50%; transform: translateY(-50%);
+      background: transparent; border: none; color: #ddd; cursor:pointer; font-size:16px;
+      padding:6px; border-radius:6px;
+    }
+
+    /* 반응형 보조 (너무 크게 깨지지 않도록 최소 너비 조정) */
+    @media (max-width: 900px) {
+      .community-section, .slider {
+        width: 92%;
+      }
+      .community-box {
+        width: 140px;
+      }
+      .icon-buttons {
+        padding: 0 16px; /* 모바일에서는 패딩 줄임 */
+        gap: 12px;
+      }
+      .icon-button img {
+        width: 56px;
+        height: 56px;
+      }
+    }
+
+    /* === 추가된 뉴스 섹션 스타일 (커뮤니티 박스 바로 아래에 배치되도록) === */
+    .news-box {
+      width: 100%;
+      margin-top: 12px;
+      background-color: #1f1f1f;
+      padding: 8px;
+      border-radius: 8px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.4);
+      box-sizing: border-box;
+    }
+
+    .news-title {
+      font-size: 14px;
+      color: #ffae42;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .news-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .news-list li {
+      margin: 6px 0;
+    }
+
+    .news-item {
+      display: inline; /* 텍스트 길이만 영역 차지 */
+      transition: color 0.3s;
+      cursor: pointer;
+      color: #ddd;
+    }
+
+    .news-item:hover {
+      color: #fffc6e; /* 형광 노랑 */
+    }
+
+    /* === 중앙세션 내부(종속 세션) 스타일 추가 === */
+    .middle-box {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+      min-height: 320px; /* 종속 섹션들이 잘 보이도록 높이를 확장 */
+      padding: 14px;
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    /* 상단 프리젠테이션(슬라이드) */
+    .presentation-carousel {
+      width: 100%;
+      height: 170px;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(180deg, #2a2a2a, #232323);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+      flex: 0 0 170px;
+    }
+
+    /* 변경: inner-slides도 고정 300% 제거 -> 100% */
+    .inner-slides {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s ease-in-out;
+    }
+
+    /* ========== 수정된 부분: inner-slide가 배경이미지를 받을 수 있도록 변경 ========== */
+    .inner-slide {
+      position: relative; /* 배경 및 오버레이를 위해 position 사용 */
+      flex: 0 0 100%;
+      height: 100%;
+      padding: 14px;
+      box-sizing: border-box;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      /* 배경 이미지가 들어갈 수 있도록 설정 */
+      background-color: #2a2a2a; /* 기본 배경(대체) */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: background-image 0.3s ease, transform 0.25s ease;
+    }
+
+    /* 텍스트 컨텐츠는 z-index 위로 올려서 가독성 확보 */
+    .inner-slide .slide-content {
+      position: relative;
+      z-index: 2;
+      max-width: 78%;
+      /* 배경 이미지에 따라 텍스트 색상이 흐려질 수 있으니 약간의 텍스트 쉐도우 */
+      text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+    }
+
+    /* 어두운 오버레이 추가 (pseudo element)로 가독성 향상 */
+    .inner-slide::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; right: 0; bottom: 0;
+      z-index: 1;
+      background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.5));
+      pointer-events: none;
+    }
+
+    .pres-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #ffea8a;
+      margin-bottom: 6px;
+    }
+
+    .pres-desc {
+      font-size: 13px;
+      color: #ddd;
+      line-height: 1.4;
+    }
+    /* ========== 수정된 부분 끝 ========== */
+
+    /* 프리젠테이션 도트 네비게이션 (작게) */
+    .pres-dots {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 5;
+    }
+
+    .pres-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      cursor: pointer;
+      transition: transform 0.15s, background 0.15s;
+    }
+
+    .pres-dot.active {
+      background: #ffae42;
+      transform: scale(1.2);
+    }
+
+    /* 하단 분할 (좌우) */
+    .sub-lower {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      box-sizing: border-box;
+      flex: 1 1 auto;
+    }
+
+    .popular-card, .recommend-card {
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.4);
+      box-sizing: border-box;
+      flex: 1;
+      min-height: 100px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      color: #ffae42;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .popular-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      color: #ddd;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .popular-list li {
+      margin: 6px 0;
+    }
+
+    .popular-list li .pop-link {
+      color: #ddd;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.18s;
+    }
+
+    .popular-list li .pop-link:hover {
+      color: #fffc6e;
+    }
+
+    .rec-banner {
+      width: 100%;
+      height: 80px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: linear-gradient(90deg,#2b2b2b,#222);
+    }
+
+    .rec-banner img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+    }
+
+    .rec-list {
+      font-size: 13px;
+      color: #ddd;
+      line-height: 1.4;
+    }
+
+    /* 반응형: 모바일일 때 하단 카드 수직 정렬 */
+    @media (max-width: 700px) {
+      .sub-lower {
+        flex-direction: column;
+      }
+      .presentation-carousel {
+        height: 150px;
+        flex: 0 0 150px;
+      }
+      .middle-box {
+        min-height: 260px;
+      }
+    }
+
+    /* ===========================
+       === IP 체크 모달 전용 스타일 ===
+       =========================== */
+
+    /* 모달 배경(기존 .modal과 충돌을 피하기 위해 별도 클래스 사용) */
+    .ip-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.65);
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .ip-modal .ip-content {
+      width: 460px;
+      max-width: calc(100% - 40px);
+      background: rgba(12,12,12,0.90);
+      border-radius: 12px;
+      padding: 18px;
+      color: #eee;
+      position: relative;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+      overflow: hidden;
+    }
+
+    /* 우측 상단의 컴퓨터+잠금 아이콘 영역 */
+    .ip-computer {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 84px;
+      height: 84px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0.98;
+    }
+
+    /* 제목, 설명 */
+    .ip-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffea8a;
+      margin-bottom: 6px;
+    }
+
+    .ip-desc {
+      font-size: 13px;
+      color: #d6d6d6;
+      margin-bottom: 12px;
+    }
+
+    /* 로딩(텍스트 옆) */
+    .ip-loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.12);
+      border-top-color: #ffae42;
+      animation: spin 1s linear infinite;
+      box-sizing: border-box;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* 단계 리스트 */
+    .ip-steps {
+      margin: 8px 0 12px 0;
+      padding: 0;
+      list-style: none;
+      font-size: 13px;
+      color: #dcdcdc;
+      line-height: 1.6;
+    }
+
+    .ip-steps li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0.62;
+      transition: opacity 0.25s, color 0.25s;
+    }
+
+    .ip-steps li.done {
+      opacity: 1;
+      color: #bff0b1;
+    }
+
+    .ip-steps li .dot-small {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      display: inline-block;
+      flex: 0 0 10px;
+      box-sizing: border-box;
+    }
+
+    .ip-steps li.done .dot-small {
+      background: #7cf09b;
+      box-shadow: 0 0 8px rgba(124,240,155,0.12);
+    }
+
+    .ip-final {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      color: #ffb3b3;
+      font-weight: 700;
+      display: none;
+      font-size: 14px;
+    }
+
+    .ip-final.accept {
+      color: #bff0b1;
+    }
+
+    .ip-modal .ip-close {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: transparent;
+      color: #ddd;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 6px;
+      border-radius: 6px;
+    }
+
+    .ip-actions {
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      margin-top: 12px;
+    }
+
+    .ip-actions button {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #ddd;
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .ip-actions button.primary {
+      background: #0f3b6d;
+      border-color: #0f3b6d;
+      color: #fff;
+    }
+
+    @media (max-width:500px) {
+      .ip-modal .ip-content { width: 100%; padding: 14px; }
+      .ip-computer { width: 64px; height: 64px; top:8px; right:8px; }
+    }
+
   </style>
 </head>
 <body>
 
   <!-- 헤더 -->
   <header>
-    <div class="logo">내 커뮤니티</div>
+    <div class="logo">BANBLE LEON</div>
     <div class="auth-buttons">
-      <a href="#">로그인</a>
-      <a href="#">회원가입</a>
+      <a onclick="openModal('loginModal')">로그인</a>
+      <a onclick="openModal('signupModal')">회원가입</a>
+      <a id="logoutBtn" style="display:none;cursor:pointer;">로그아웃</a>
+      <span id="userName" style="margin-left:15px; font-weight:bold; color:#ffcc00; display:none;"></span>
     </div>
   </header>
 
   <!-- 공지 텍스트 박스 -->
-  <div class="notice-box">
-    📢 오늘의 공지: 새로운 이벤트가 시작되었습니다!
+  <div class="notice-box" style="font-size:15.4px;">
+    오늘의 공지: 새로운 이벤트가 시작되었습니다!
   </div>
 
   <!-- 슬라이더 -->
   <div class="slider">
     <div class="slides">
-      <img src="https://via.placeholder.com/1200x400/003d80/ffffff?text=공지+1" alt="공지1">
-      <img src="https://via.placeholder.com/1200x400/444444/ffffff?text=공지+2" alt="공지2">
-      <img src="https://via.placeholder.com/1200x400/222222/ffffff?text=공지+3" alt="공지3">
+      <img src="https://i.imgur.com/mL6RAMZ.png" alt="공지1">
+      <img src="https://pimg.mk.co.kr/meet/neds/2020/11/image_readtop_2020_1182659_16055986074435325.jpg" alt="공지2">
+      <img src="https://celcliptipsprod.s3-ap-northeast-1.amazonaws.com/tips_article_body/4c36/208331/7eb07261d46614eccf78b4ecdc7cd07a" alt="공지3">
     </div>
   </div>
   <div class="dots">
@@ -152,23 +926,402 @@
     <span class="dot"></span>
   </div>
 
-  <!-- 커뮤니티 목록 -->
+  <!-- 커뮤니티 섹션: 좌 - 중앙(버튼+중앙박스) - 우 -->
   <div class="community-section">
-    <ul class="community-list">
-      <li><a href="#">커뮤니티 A</a></li>
-      <li><a href="#">커뮤니티 B</a></li>
-      <li><a href="#">커뮤니티 C</a></li>
-      <li><a href="#">커뮤니티 D</a></li>
-      <li><a href="#">커뮤니티 E</a></li>
-    </ul>
-    <ul class="community-list">
-      <li><a href="#">커뮤니티 F</a></li>
-      <li><a href="#">커뮤니티 G</a></li>
-      <li><a href="#">커뮤니티 H</a></li>
-      <li><a href="#">커뮤니티 I</a></li>
-      <li><a href="#">커뮤니티 J</a></li>
-    </ul>
+    <!-- 왼쪽 A~E -->
+    <div class="community-box">
+      <div class="community-title">상위 커뮤니티</div>
+      <ul class="community-list">
+        <li><a href="#">로이친 그룹</a></li>
+        <li><a href="#">르젤 커뮤니티</a></li>
+        <li><a href="#">밴블리온 카페</a></li>
+        <li><a href="#">명예의 관람관</a></li>
+        <li><a href="#">D조 유니온 클럽</a></li>
+        <li><a href="#">명예의 관람관</a></li>
+        <li><a href="#">D조 유니온 클럽</a></li>
+        <li><a href="#">명예의 관람관</a></li>
+        <li><a href="#">D조 유니온 클럽</a></li>
+        <li><a href="#">명예의 관람관</a></li>
+      </ul>
+
+    </div>
+
+    <!-- 중앙 컬럼: 버튼 행이 상단에 오도록 배치 -->
+    <div class="middle-column">
+      <!-- 아이콘 버튼들은 이제 중앙 컬럼의 상단에 위치하여, 커뮤니티 박스 상단과 Y 좌표가 맞음 -->
+      <div class="icon-buttons">
+        <div class="icon-button">
+          <img src="https://i.imgur.com/dsAyje0.png" alt="버튼1">
+          <span>시작하기</span>
+        </div>
+        <div class="icon-button">
+          <img src="https://i.imgur.com/mmOgQb3.png" alt="버튼2">
+          <span>모여보기</span>
+        </div>
+        <div class="icon-button">
+          <img src="https://i.imgur.com/JUUM1a5.png" alt="버튼3">
+          <span>주관활동</span>
+        </div>
+        <div class="icon-button">
+          <img src="https://i.imgur.com/reAtoq0.png" alt="버튼4">
+          <span>운영진들</span>
+        </div>
+      </div>
+
+      <!-- 중앙 세션 (버튼 아래) - 여기만 편집됨: 3개의 종속 세션 포함 -->
+      <div class="middle-box">
+        <!-- 상단: 프리젠테이션처럼 자동 전환되는 큰 패널 -->
+        <div class="presentation-carousel" aria-label="프리젠테이션 섹션">
+          <div class="inner-slides">
+            <div class="inner-slide" data-bg="https://i.imgur.com/HOjNXrn.png">
+              <div class="slide-content">
+                <div class="pres-title">유니온 우리의 공간</div>
+                <div class="pres-desc">여러분의 활발한 활동은 밴블리온의 성장과 수익 확대에 보탬이 됩니다.</div>
+              </div>
+            </div>
+
+            <div class="inner-slide" data-bg="https://i.imgur.com/AsLxf9e.png">
+              <div class="slide-content">
+                <div class="pres-title">업데이트 알림</div>
+                <div class="pres-desc">시스템 점검이 예정되어 있습니다. 점검 시간 동안 일부 기능이 제한될 수 있습니다.</div>
+              </div>
+            </div>
+
+            <div class="inner-slide" data-bg="https://i.imgur.com/VhpnT3g.png">
+              <div class="slide-content">
+                <div class="pres-title">유피드 플랫폼</div>
+                <div class="pres-desc">유피드 커넥트 커뮤니케이션 플랫폼은 유니온 여러분들을 위해 밴블리온에서 "자체" 개발한 플랫폼입니다.</div>
+              </div>
+            </div>
+
+          </div>
+          <div class="pres-dots" aria-hidden="false">
+            <span class="pres-dot active" data-i="0"></span>
+            <span class="pres-dot" data-i="1"></span>
+            <span class="pres-dot" data-i="2"></span>
+          </div>
+        </div>
+
+        <!-- 하단: 좌우 분할 (인기글 / 추천 콘텐츠) -->
+        <div class="sub-lower">
+          <div class="popular-card" aria-label="인기 게시물">
+            <div class="card-title">인기 게시물</div>
+            <ul class="popular-list">
+              <li><a class="pop-link" href="#">[공지] 서버 점검 안내</a></li>
+              <li><a class="pop-link" href="#">오늘의 베스트 스토리</a></li>
+              <li><a class="pop-link" href="#">유저 인터뷰: 운영진 Q&A</a></li>
+              <li><a class="pop-link" href="#">꿀팁: 프로필 꾸미기</a></li>
+              <li><a class="pop-link" href="#">커뮤니티 가이드 업데이트</a></li>
+            </ul>
+          </div>
+
+          <div class="recommend-card" aria-label="추천 콘텐츠">
+            <div class="card-title">추천 콘텐츠</div>
+            <div class="rec-banner">
+              <!-- 자리 표시자 이미지: 실제 배너로 교체 가능 -->
+              <img src="https://via.placeholder.com/420x140?text=추천+배너" alt="추천 배너">
+            </div>
+            <div class="rec-list">
+              - 초보자 가이드: 시작하기<br>
+              - 오늘의 인기 태그: #사진 #이벤트<br>
+              - 파트너 혜택 바로가기
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- (중앙 세션 편집 끝) -->
+
+    </div>
+
+    <!-- 오른쪽 F~J -->
+    <div class="community-box">
+      <div class="community-title">신설 커뮤니티</div>
+      <ul class="community-list">
+        <li><a href="#">커뮤니티 F</a></li>
+        <li><a href="#">노르웨이</a></li>
+        <li><a href="#">커뮤니티 H</a></li>
+        <li><a href="#">가르다라</a></li>
+        <li><a href="#">커뮤니티 J</a></li>
+        <li><a href="#">가르다라</a></li>
+        <li><a href="#">커뮤니티 J</a></li>
+        <li><a href="#">가르다라</a></li>
+        <li><a href="#">커뮤니티 J</a></li>
+        <li><a href="#">가르다라</a></li>
+      </ul>
+
+    </div>
   </div>
+
+  <!-- === 추가된 뉴스/이슈 섹션 (community-section 바로 아래, 독립된 레벨) === -->
+  <div style="width:70%; margin:20px auto 24px auto; box-sizing:border-box;">
+    <!-- 뉴스 카드 스트립 -->
+    <div id="extraNewsContainer" style="background:#242424; border-radius:10px; padding:12px; box-shadow:0 2px 10px rgba(0,0,0,0.45);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div style="font-size:16px; color:#ffae42; font-weight:bold;">뉴스 | 유핏이슈 | 밴블리온</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button id="extraPrev" aria-label="이전" style="background:transparent; border:1px solid #3a3a3a; color:#ddd; padding:6px 8px; border-radius:6px; cursor:pointer;">◀</button>
+          <span id="extraPage" style="color:#bbb; font-size:13px;">1/1</span>
+          <button id="extraNext" aria-label="다음" style="background:transparent; border:1px solid #3a3a3a; color:#ddd; padding:6px 8px; border-radius:6px; cursor:pointer;">▶</button>
+        </div>
+      </div>
+
+      <div id="extraNewsWrapper" style="display:flex; gap:12px; overflow-x:auto; scroll-behavior:smooth; padding-bottom:6px;">
+        <!-- 각 카드: 고정 폭으로 배치, 스크롤로 넘김 -->
+        <div class="extra-card" style="flex:0 0 220px; background:#1f1f1f; border-radius:8px; overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,0.5);">
+          <img src="https://via.placeholder.com/420x240?text=썸네일1" alt="thumb1" style="width:100%; height:120px; object-fit:cover; display:block;">
+          <div style="padding:10px; color:#ddd; font-size:14px; line-height:1.4;">
+            경기도, 'DMZ OPEN 국제음악제' 26일 고양서 개막
+          </div>
+        </div>
+
+        <div class="extra-card" style="flex:0 0 220px; background:#1f1f1f; border-radius:8px; overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,0.5);">
+          <img src="https://via.placeholder.com/420x240?text=썸네일2" alt="thumb2" style="width:100%; height:120px; object-fit:cover; display:block;">
+          <div style="padding:10px; color:#ddd; font-size:14px; line-height:1.4;">
+            최휘영 장관 "전통문화, K콘텐츠 성장동력으로"
+          </div>
+        </div>
+
+        <div class="extra-card" style="flex:0 0 220px; background:#1f1f1f; border-radius:8px; overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,0.5);">
+          <img src="https://via.placeholder.com/420x240?text=썸네일3" alt="thumb3" style="width:100%; height:120px; object-fit:cover; display:block;">
+          <div style="padding:10px; color:#ddd; font-size:14px; line-height:1.4;">
+            트럼프, '틱톡 美 사업권 인수' 행정명령 서명
+          </div>
+        </div>
+
+
+        <div class="extra-card" style="flex:0 0 220px; background:#1f1f1f; border-radius:8px; overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,0.5);">
+          <img src="https://via.placeholder.com/420x240?text=썸네일5" alt="thumb5" style="width:100%; height:120px; object-fit:cover; display:block;">
+          <div style="padding:10px; color:#ddd; font-size:14px; line-height:1.4;">
+            문화예술 행사 안내: 지역 카페 대관 전시
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- === 추가 섹션 끝 === -->
+
+  <!-- IP 조회 모달 (새로 추가됨) -->
+  <div id="ipCheckModal" class="ip-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="ip-content" role="document">
+      <button class="ip-close" aria-label="닫기">&times;</button>
+
+      <!-- 컴퓨터 + 잠금 인라인 SVG (우측 상단) -->
+      <div class="ip-computer" aria-hidden="true">
+        <!-- 간단한 컴퓨터+자물쇠 SVG (인라인으로 외부 의존 없음) -->
+        <svg width="80" height="80" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="4" y="10" width="56" height="36" rx="4" fill="#111827"/>
+          <rect x="6" y="12" width="52" height="28" rx="2" fill="#1f2937"/>
+          <rect x="8" y="15" width="48" height="6" rx="2" fill="#374151"/>
+          <rect x="8" y="23" width="34" height="14" rx="1" fill="#0b1220"/>
+          <rect x="44" y="23" width="12" height="12" rx="1" fill="#0b1220"/>
+          <g transform="translate(44,23)">
+            <rect x="2" y="1" width="8" height="8" rx="1" fill="#08121c"/>
+            <path d="M6 0C4.344 0 3 1.344 3 3v1h6V3C9 1.344 7.656 0 6 0z" fill="#0ea5a4"/>
+            <rect x="4" y="4" width="4" height="4" rx="0.5" fill="#062024"/>
+          </g>
+          <!-- 잠금 아이콘 -->
+          <g transform="translate(2,38) scale(0.9)">
+            <rect x="36" y="4" width="18" height="14" rx="2" fill="#0b1220" stroke="#94a3b8"/>
+            <path d="M45 4c-3 0-5 2-5 5v3h10V9c0-3-2-5-5-5z" fill="#0ea5a4"/>
+            <circle cx="45" cy="11" r="1.8" fill="#071126"/>
+          </g>
+        </svg>
+      </div>
+
+      <div style="padding-right: 110px;">
+        <div class="ip-title">IP 조회 중입니다</div>
+        <div class="ip-desc">선택한 커뮤니티의 접속 IP를 실시간으로 검사합니다. 잠시만 기다려 주세요.</div>
+
+        <div class="ip-loading">
+          <div class="spinner" aria-hidden="true"></div>
+          <div style="font-size:13px;color:#d6d6d6;">아이피 조회 중... <span id="ipDummy">(예: 203.***.***.***)</span></div>
+        </div>
+
+        <ul class="ip-steps" id="ipSteps">
+          <li data-step="0"><span class="dot-small"></span> 네트워크 인터페이스 검사</li>
+          <li data-step="1"><span class="dot-small"></span> WHOIS 정보 조회</li>
+          <li data-step="2"><span class="dot-small"></span> 지리적 위치 매핑</li>
+          <li data-step="3"><span class="dot-small"></span> 서버 화이트리스트 확인</li>
+          <li data-step="4"><span class="dot-small"></span> 종합 보안 스캔</li>
+        </ul>
+
+        <div class="ip-final" id="ipFinal">해당 아이피는 유니온 밴블리온의 서버에서 승인된 아이피가 아닙니다.</div>
+
+        <div class="ip-actions">
+          <button id="ipRetryBtn">다시 검사</button>
+          <button id="ipCloseBtn" class="primary">닫기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 로그인 모달 (개선된 UI) -->
+  <div id="loginModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="loginTitle">
+    <div class="modal-content" role="document">
+      <button class="modal-close" onclick="closeModal('loginModal')" aria-label="닫기">&times;</button>
+      <div class="modal-inner">
+        <div class="modal-brand">
+          <img src="https://i.imgur.com/dsAyje0.png" alt="브랜드" style="width:56px;height:56px;border-radius:8px;">
+          <div>
+            <h2 id="loginTitle">로그인</h2>
+            <p>계정으로 로그인하여 커뮤니티 참여를 시작하세요.</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="field">
+          <input type="email" id="loginEmail" placeholder="이메일" />
+        </label>
+
+        <label class="field password-field">
+          <input type="password" id="loginPass" placeholder="비밀번호" />
+          <button type="button" class="pw-toggle" data-target="loginPass" aria-label="비밀번호 보기">👁️</button>
+        </label>
+
+        <div class="modal-actions">
+          <label style="font-size:13px;color:#ccc;"><input type="checkbox" id="rememberMe" style="margin-right:6px;"/> 로그인 유지</label>
+          <a href="#" style="font-size:13px;color:#ffae42;text-decoration:none;">비밀번호 찾기</a>
+        </div>
+
+        <button id="loginSubmit" class="primary-btn">로그인</button>
+
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="alt-btn">카카오로 시작</button>
+          <button class="alt-btn">구글로 시작</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 회원가입 모달 (개선된 UI) -->
+  <div id="signupModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="signupTitle">
+    <div class="modal-content" role="document">
+      <button class="modal-close" onclick="closeModal('signupModal')" aria-label="닫기">&times;</button>
+      <div class="modal-inner">
+        <div class="modal-brand">
+          <img src="https://i.imgur.com/mmOgQb3.png" alt="회원가입" style="width:56px;height:56px;border-radius:8px;">
+          <div>
+            <h2 id="signupTitle">회원가입</h2>
+            <p>닉네임을 입력하고 간단히 가입하세요.</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="field">
+          <input type="text" id="signupNickname" placeholder="닉네임" />
+        </label>
+        <label class="field">
+          <input type="email" id="signupEmail" placeholder="이메일" />
+        </label>
+        <label class="field password-field">
+          <input type="password" id="signupPass" placeholder="비밀번호" />
+          <button type="button" class="pw-toggle" data-target="signupPass" aria-label="비밀번호 보기">👁️</button>
+        </label>
+
+        <button id="signupSubmit" class="primary-btn">회원가입</button>
+
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="alt-btn">이메일 인증</button>
+          <button class="alt-btn">초대코드 사용</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } 
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJZle3txhhthWgaIWTTHzrLl4bkJqQye4",
+      authDomain: "fast-gateway-290809.firebaseapp.com",
+      projectId: "fast-gateway-290809",
+      storageBucket: "fast-gateway-290809.firebasestorage.app",
+      messagingSenderId: "640433110514",
+      appId: "1:640433110514:web:8fe4fafc9a987b6a4b3f6b",
+      measurementId: "G-2V57XWX7CW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.openModal = function(id) {
+      document.getElementById(id).style.display = "flex";
+    }
+    window.closeModal = function(id) {
+      document.getElementById(id).style.display = "none";
+    }
+
+    function updateHeader(user) {
+      const userNameEl = document.getElementById("userName");
+      const loginBtn = document.querySelector(".auth-buttons a[onclick*='loginModal']");
+      const signupBtn = document.querySelector(".auth-buttons a[onclick*='signupModal']");
+      const logoutBtn = document.getElementById("logoutBtn");
+
+      if (user) {
+        if (loginBtn) loginBtn.style.display = "none";
+        if (signupBtn) signupBtn.style.display = "none";
+        if (logoutBtn) logoutBtn.style.display = "inline-block";
+
+        if (userNameEl) {
+          const name = user.displayName || user.email || "사용자";
+          userNameEl.textContent = name;
+          userNameEl.style.display = "inline-block";
+        }
+      } else {
+        if (loginBtn) loginBtn.style.display = "inline-block";
+        if (signupBtn) signupBtn.style.display = "inline-block";
+        if (logoutBtn) logoutBtn.style.display = "none";
+
+        if (userNameEl) {
+          userNameEl.textContent = "";
+          userNameEl.style.display = "none";
+        }
+      }
+    }
+
+    document.getElementById("signupSubmit").addEventListener("click", async () => {
+      const nickname = document.getElementById("signupNickname").value;
+      const email = document.getElementById("signupEmail").value;
+      const pass = document.getElementById("signupPass").value;
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        await updateProfile(userCredential.user, { displayName: nickname });
+        updateHeader(userCredential.user);
+        alert("회원가입 완료!");
+        closeModal("signupModal");
+      } catch (error) {
+        alert("회원가입 실패: " + error.message);
+      }
+    });
+
+    document.getElementById("loginSubmit").addEventListener("click", async () => {
+      const email = document.getElementById("loginEmail").value;
+      const pass = document.getElementById("loginPass").value;
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+        updateHeader(userCredential.user);
+        alert("로그인 성공!");
+        closeModal("loginModal");
+      } catch (error) {
+        alert("로그인 실패: " + error.message);
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      updateHeader(null);
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      updateHeader(user);
+    });
+  </script>
 
   <script>
     let index = 0;
@@ -183,7 +1336,9 @@
     }
 
     function autoSlide() {
-      index = (index + 1) % 3;
+      // 변경: 슬라이드 개수에 따라 동적으로 순환하도록 (하드코딩된 3 제거)
+      const slideCount = slides ? slides.children.length : 1;
+      index = (index + 1) % slideCount;
       showSlide(index);
     }
 
@@ -191,8 +1346,245 @@
       dot.addEventListener("click", () => showSlide(i));
     });
 
-    setInterval(autoSlide, 4000); // 4초마다 자동 슬라이드
+    setInterval(autoSlide, 4000);
   </script>
+
+  <!-- 중앙 프리젠테이션 전용 스크립트 (중앙 세션 관련 동작만 추가) -->
+  <script>
+    (function() {
+      // 이름 충돌 방지: presIndex, presSlides, presDots 사용
+      const presSlides = document.querySelector(".inner-slides");
+      const presDots = Array.from(document.querySelectorAll(".pres-dot"));
+      if (!presSlides || presDots.length === 0) return; // 중앙세션이 없으면 중단
+
+      // --- 새로 추가: data-bg에 따라 배경 적용 ---
+      function applyBgToSlides() {
+        const slides = Array.from(document.querySelectorAll('.inner-slide'));
+        slides.forEach(slide => {
+          const bg = slide.getAttribute('data-bg') || '';
+          if (bg.trim()) {
+            slide.style.backgroundImage = `url("${bg}")`;
+          } else {
+            slide.style.backgroundImage = '';
+          }
+        });
+      }
+
+      // 실행 로직: 슬라이드 배경 적용 + 슬라이드 동작
+      applyBgToSlides();
+
+      let presIndex = 0;
+      const presCount = presDots.length;
+
+      function presShow(n) {
+        presIndex = n;
+        presSlides.style.transform = `translateX(${-n * 100}%)`;
+        presDots.forEach(d => d.classList.remove("active"));
+        presDots[n].classList.add("active");
+      }
+
+      function presAuto() {
+        presIndex = (presIndex + 1) % presCount;
+        presShow(presIndex);
+      }
+
+      presDots.forEach((dot, i) => {
+        dot.addEventListener("click", () => {
+          presShow(i);
+          // 사용자가 클릭하면 자동전환 재시작(간단히 재설정)
+          resetPresInterval();
+        });
+      });
+
+      let presInterval = setInterval(presAuto, 5000);
+      function resetPresInterval() {
+        clearInterval(presInterval);
+        presInterval = setInterval(presAuto, 5000);
+      }
+
+      // 초기 표시
+      presShow(0);
+    })();
+  </script>
+
+ <!-- === IP 체크 모달 스크립트 (추가됨) === -->
+  <script>
+    (function(){
+      // 선택: 왼쪽 community-box의 링크들만 타겟
+      const leftLinks = document.querySelectorAll('.community-section .community-box:first-of-type .community-list a');
+
+      const ipModal = document.getElementById('ipCheckModal');
+      const ipClose = ipModal.querySelector('.ip-close');
+      const ipCloseBtn = document.getElementById('ipCloseBtn');
+      const ipRetryBtn = document.getElementById('ipRetryBtn');
+      const ipStepsEl = document.getElementById('ipSteps');
+      const ipFinal = document.getElementById('ipFinal');
+      const ipDummy = document.getElementById('ipDummy');
+
+     // 내부 상태 타이머 핸들
+      let ipTimers = [];
+
+      // 더미 IP(실제 IP 연동 없음) — 보안상의 이유로 실제 IP 요청하지 않음
+      function randomDummyIP(){
+        const a = Math.floor(Math.random()*223)+1;
+        const b = Math.floor(Math.random()*256);
+        const c = Math.floor(Math.random()*256);
+        const d = Math.floor(Math.random()*256);
+        return `${a}.${b}.${c}.${d}`;
+      }
+
+      // 모달 열기: 커뮤니티 이름 전달
+      function openIpModal(communityName){
+        // 초기화
+        clearIpTimers();
+        ipStepsEl.querySelectorAll('li').forEach(li => li.classList.remove('done'));
+        ipFinal.style.display = 'none';
+        ipDummy.textContent = `(${randomDummyIP()})`;
+        ipModal.style.display = 'flex';
+        ipModal.setAttribute('aria-hidden','false');
+
+        // 단계별 애니메이션: 각 단계마다 표시
+        const steps = Array.from(ipStepsEl.querySelectorAll('li'));
+        steps.forEach((stepEl, i) => {
+          // staggered reveal
+          const t = setTimeout(() => {
+            stepEl.classList.add('done');
+          }, 700 + i * 800); // 0.7s 시작, 각 단계 0.8s 간격
+          ipTimers.push(t);
+        });
+
+        // 최종 결과: 모든 단계 완료 후 메시지 표시
+        const totalDelay = 700 + steps.length * 800 + 600;
+        const finalTimer = setTimeout(() => {
+          ipFinal.textContent = '해당 아이피는 유니온 밴블리온의 서버에서 승인된 아이피가 아닙니다.';
+          ipFinal.classList.remove('accept');
+          ipFinal.style.display = 'block';
+        }, totalDelay);
+        ipTimers.push(finalTimer);
+      }
+
+      function clearIpTimers(){
+        ipTimers.forEach(t => clearTimeout(t));
+        ipTimers = [];
+      }
+
+      function closeIpModal(){
+        clearIpTimers();
+        ipModal.style.display = 'none';
+        ipModal.setAttribute('aria-hidden','true');
+      }
+
+      // attach to each left link
+      leftLinks.forEach(a => {
+        a.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          const name = (typeof a.textContent === 'string') ? a.textContent.trim() : '커뮤니티';
+          openIpModal(name);
+        });
+      });
+
+      // 닫기/다시검사 버튼 핸들
+      ipClose.addEventListener('click', closeIpModal);
+      ipCloseBtn.addEventListener('click', closeIpModal);
+      ipRetryBtn.addEventListener('click', () => {
+        openIpModal('다시검사');
+      });
+
+      // ESC로 닫기
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && ipModal.style.display === 'flex') {
+          closeIpModal();
+        }
+      });
+
+      // 클릭으로 배경 닫기 (단, content 내부 클릭은 무시)
+      ipModal.addEventListener('click', (e) => {
+        if (e.target === ipModal) closeIpModal();
+      });
+
+    })();
+  </script>
+
+  <!-- === 추가된 섹션 동작 스크립트 === -->
+  <script>
+    (function(){
+      const wrapper = document.getElementById('extraNewsWrapper');
+      const prevBtn = document.getElementById('extraPrev');
+      const nextBtn = document.getElementById('extraNext');
+      const pageDisplay = document.getElementById('extraPage');
+      if (!wrapper || !prevBtn || !nextBtn || !pageDisplay) return;
+
+      // 기본 페이지 수 계산 (동적)
+      function calcPages() {
+        const visibleWidth = wrapper.clientWidth;
+        // total scrollable width / visible width
+        const totalWidth = wrapper.scrollWidth;
+        const pages = Math.max(1, Math.ceil(totalWidth / visibleWidth));
+        return pages;
+      }
+
+      function updatePageDisplay() {
+        const pages = calcPages();
+        const current = Math.floor(wrapper.scrollLeft / wrapper.clientWidth) + 1;
+        pageDisplay.textContent = `${Math.min(current,pages)}/${pages}`;
+      }
+
+      prevBtn.addEventListener('click', () => {
+        wrapper.scrollBy({ left: -wrapper.clientWidth, behavior: 'smooth' });
+        setTimeout(updatePageDisplay, 450);
+      });
+      nextBtn.addEventListener('click', () => {
+        wrapper.scrollBy({ left: wrapper.clientWidth, behavior: 'smooth' });
+        setTimeout(updatePageDisplay, 450);
+      });
+
+      // 업데이트 on scroll / resize
+      wrapper.addEventListener('scroll', () => {
+        // throttle
+        if (this._extraTimer) clearTimeout(this._extraTimer);
+        this._extraTimer = setTimeout(() => updatePageDisplay(), 120);
+      });
+      window.addEventListener('resize', () => setTimeout(updatePageDisplay, 200));
+
+      // 초기
+      updatePageDisplay();
+    })();
+  </script>
+
+  <!-- 사이트 푸터 -->
+  <footer style="background:#111; color:#ccc; font-size:12px; padding:20px; text-align:center; line-height:1.5;">
+    
+    <a href="library.html?section=terms" style="color:#ccc; text-decoration:none; margin:0 4.5px;">이용약관</a> |
+    <a href="library.html?section=privacy" style="color:#ccc; text-decoration:none; margin:0 4.5px;">개인정보 처리방침</a> |
+    <a href="library.html?section=server" style="color:#ccc; text-decoration:none; margin:0 4.5px;">유피드 자산 데이터 서버 지침</a> |
+    <a href="library.html?section=notice" style="color:#ccc; text-decoration:none; margin:0 4.5px;">밴블리온 운영부 고지 사항</a> |
+    <a href="library.html?section=community" style="color:#ccc; text-decoration:none; margin:0 4.5px;">커뮤니티 가이드라인</a>
+    </div>
+    <div style="margin-top:9px;">
+      유피드는 밴블리온 사 프로그램 개발 부서 "에너자이저"의 공식 인트라넷 플랫폼으로, 모든 사이트 내 정보는 사이트 자산사의 목적에 한해 제한되고 관리될 수 있습니다.
+    </div>
+    <div style="margin-top:9px;">
+      경기도 수원시 밴블리온 수원 지부 미공개 위치<br>
+      help@upid.org | 오픈 소스 라이선스<br>
+      ©UPID Foundation.
+    </div>
+
+     <!-- 로고 일렬 추가 -->
+  <div style="margin-top:15px; display:flex; justify-content:center; flex-wrap:wrap; gap:15px;">
+    <img src="https://i.imgur.com/cNs1Eg7.png" alt="Logo1" style="height:30px;">
+    <img src="https://i.imgur.com/SF42CN6.png" alt="Logo2" style="height:30px;">
+    <img src="https://i.imgur.com/2pz9w9f.png" alt="Logo3" style="height:30px;">
+    <img src="https://i.imgur.com/SfRsyh4.png" alt="Logo4" style="height:30px;">
+    <img src="https://i.imgur.com/IS5OcvD.png" alt="Logo5" style="height:30px;">
+    <img src="https://i.imgur.com/7uI8nfn.png" alt="Logo6" style="height:30px;">
+    <img src="https://i.imgur.com/yccwqmB.png" alt="Logo7" style="height:30px;">
+    <img src="https://i.imgur.com/mHH406e.png" alt="Logo8" style="height:30px;">
+    <img src="https://i.imgur.com/tc4GZfM.png" alt="Logo9" style="height:30px;">
+              <div style="width:1px; height:30px; background:#444;"></div>
+    <img src="https://i.imgur.com/cHJBLaF.png" alt="Logo10" style="height:30px;">
+  </div>
+  </footer>
 
 </body>
 </html>
+
