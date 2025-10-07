@@ -204,7 +204,9 @@
     .presentation-carousel { width:100%; height:170px; border-radius:10px; overflow:hidden; position:relative; background: linear-gradient(180deg,#2a2a2a,#232323); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); flex:0 0 170px; }
     .inner-slides { display:flex; width:100%; height:100%; transition: transform .6s ease-in-out; }
     .inner-slide { position:relative; flex:0 0 100%; height:100%; padding:14px; box-sizing:border-box; color:#fff; display:flex; flex-direction:column; justify-content:center; background-color:#2a2a2a; background-size:cover; background-position:center; background-repeat:no-repeat; transition: background-image .3s ease; }
-    .inner-slide .slide-content { position:relative; z-index:2; max-width:78%; text-shadow:0 1px 2px rgba(0,0,0,0.7); }
+    /* 변경: 슬라이드 내부 컨텐츠를 왼쪽 정렬로 조정 */
+    .inner-slide { align-items: flex-start; } /* 왼쪽 정렬을 보장 */
+    .inner-slide .slide-content { position:relative; z-index:2; max-width:78%; text-shadow:0 1px 2px rgba(0,0,0,0.7); text-align:left; margin-left:0; }
     .inner-slide::before { content:""; position:absolute; left:0; top:0; right:0; bottom:0; z-index:1; background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.5)); pointer-events:none; }
     .pres-title { font-size:18px; font-weight:bold; color:#ffea8a; margin-bottom:6px; }
     .pres-desc { font-size:13px; color:#ddd; line-height:1.4; }
@@ -235,17 +237,12 @@
     .ip-loading { display:inline-flex; align-items:center; gap:10px; margin-bottom:12px; }
     .spinner { width:16px; height:16px; border-radius:50%; border:3px solid rgba(255,255,255,0.12); border-top-color:#ffae42; animation:spin 1s linear infinite; box-sizing:border-box; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .ip-steps { margin:8px 0 12px 0; padding:0; list-style:none; font-size:13px; color:#dcdcdc; line-height:1.6; }
-    .ip-steps li { display:flex; align-items:center; gap:10px; opacity:.62; transition: opacity .25s, color .25s; }
-    .ip-steps li.done { opacity:1; color:#bff0b1; }
-    .dot-small { width:10px; height:10px; border-radius:50%; background: rgba(255,255,255,0.08); display:inline-block; flex:0 0 10px; box-sizing:border-box; }
-    .ip-steps li.done .dot-small { background:#7cf09b; box-shadow: 0 0 8px rgba(124,240,155,0.12); }
+    /* (가짜 검사 항목 제거됨) */
     .ip-final { margin-top:12px; padding:12px; border-radius:8px; background: rgba(255,255,255,0.03); color:#ffb3b3; font-weight:700; display:none; font-size:14px; }
-    .ip-final.accept { color:#bff0b1; }
+    .ip-final.accept { color:#bff0b1; background: rgba(0,0,0,0.06); display:block; }
     .ip-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
     .ip-actions button { background:transparent; border:1px solid rgba(255,255,255,0.08); color:#ddd; padding:8px 10px; border-radius:6px; cursor:pointer; font-weight:600; }
     .ip-actions button.primary { background:#0f3b6d; border-color:#0f3b6d; color:#fff; }
-
 
   </style>
 </head>
@@ -448,7 +445,7 @@
 
   </div> <!-- site-content 끝 -->
 
-  <!-- IP modal (내용은 동일) -->
+  <!-- IP modal (수정됨: 가짜 검사 제거, 실제 IP 조회 및 allowlist 체크) -->
   <div id="ipCheckModal" class="ip-modal" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="ip-content" role="document">
       <button class="ip-close" aria-label="닫기">&times;</button>
@@ -476,23 +473,17 @@
         <div class="ip-title">IP 조회 중입니다</div>
         <div class="ip-desc">선택한 커뮤니티의 접속 IP를 실시간으로 검사합니다. 잠시만 기다려 주세요.</div>
 
-        <div class="ip-loading">
-          <div class="spinner" aria-hidden="true"></div>
+        <div class="ip-loading" id="ipLoadingArea">
+          <div class="spinner" aria-hidden="true" id="ipSpinner"></div>
           <div style="font-size:13px;color:#d6d6d6;">아이피 조회 중... <span id="ipDummy">(예: 203.***.***.***)</span></div>
         </div>
 
-        <ul class="ip-steps" id="ipSteps">
-          <li data-step="0"><span class="dot-small"></span> 네트워크 인터페이스 검사</li>
-          <li data-step="1"><span class="dot-small"></span> WHOIS 정보 조회</li>
-          <li data-step="2"><span class="dot-small"></span> 지리적 위치 매핑</li>
-          <li data-step="3"><span class="dot-small"></span> 서버 화이트리스트 확인</li>
-          <li data-step="4"><span class="dot-small"></span> 종합 보안 스캔</li>
-        </ul>
+        <!-- 가짜 검사 요소 전부 제거됨 (요청 반영) -->
 
         <div class="ip-final" id="ipFinal">해당 아이피는 유니온 밴블리온의 서버에서 승인된 아이피가 아닙니다.</div>
 
         <div class="ip-actions">
-          <button id="ipRetryBtn">다시 검사</button>
+          <!-- '다시 검사' 버튼 제거(요청 반영) -->
           <button id="ipCloseBtn" class="primary">닫기</button>
         </div>
       </div>
@@ -738,65 +729,179 @@
     })();
   </script>
 
-  <!-- IP 체크 스크립트 -->
+  <!-- IP 체크 스크립트 (수정됨) -->
   <script>
     (function(){
+      // 왼쪽 링크들(상위 커뮤니티)을 클릭하면 IP 모달을 엽니다.
       const leftLinks = document.querySelectorAll('.community-section .community-box:first-of-type .community-list a');
 
       const ipModal = document.getElementById('ipCheckModal');
       const ipClose = ipModal.querySelector('.ip-close');
       const ipCloseBtn = document.getElementById('ipCloseBtn');
-      const ipRetryBtn = document.getElementById('ipRetryBtn');
-      const ipStepsEl = document.getElementById('ipSteps');
       const ipFinal = document.getElementById('ipFinal');
       const ipDummy = document.getElementById('ipDummy');
+      const ipSpinner = document.getElementById('ipSpinner');
+      const ipLoadingArea = document.getElementById('ipLoadingArea');
 
-      let ipTimers = [];
+      // 반드시 나중에 실제 허용 IP 목록 URL을 넣어주세요.
+      // 예: const ALLOWLIST_URL = "https://example.com/allowlist.txt";
+      const ALLOWLIST_URL = "REPLACE_WITH_ALLOWLIST_URL";
 
-      function randomDummyIP(){
-        const a = Math.floor(Math.random()*223)+1;
-        const b = Math.floor(Math.random()*256);
-        const c = Math.floor(Math.random()*256);
-        const d = Math.floor(Math.random()*256);
-        return `${a}.${b}.${c}.${d}`;
+      // 유틸: IP 문자열 -> 32비트 정수
+      function ipToInt(ip) {
+        if (!ip) return null;
+        const parts = ip.trim().split('.');
+        if (parts.length !== 4) return null;
+        return parts.reduce((acc, p) => (acc << 8) + (parseInt(p,10) & 0xff), 0) >>> 0;
       }
 
-      function openIpModal(communityName){
-        clearIpTimers();
-        ipStepsEl.querySelectorAll('li').forEach(li => li.classList.remove('done'));
-        ipFinal.style.display = 'none';
-        ipDummy.textContent = `(${randomDummyIP()})`;
+      // CIDR 포함 여부 검사
+      function cidrContains(cidr, ip) {
+        try {
+          const [net, maskLenStr] = cidr.split('/');
+          if (!maskLenStr) return false;
+          const maskLen = parseInt(maskLenStr, 10);
+          const ipInt = ipToInt(ip);
+          const netInt = ipToInt(net);
+          if (ipInt === null || netInt === null) return false;
+          const mask = maskLen === 0 ? 0 : (~((1 << (32 - maskLen)) - 1)) >>> 0;
+          return (ipInt & mask) === (netInt & mask);
+        } catch (e) {
+          return false;
+        }
+      }
+
+      // allowlist 텍스트 파싱: 각 줄을 순회, CIDR 또는 단일 IP로 처리
+      function parseAllowlistText(text) {
+        const lines = String(text).split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        return lines;
+      }
+
+      // 모달 열기 및 검사 실행
+      async function openIpModal(communityName){
+        // 초기화 표시
         ipModal.style.display = 'flex';
         ipModal.setAttribute('aria-hidden','false');
+        ipSpinner.style.display = ''; // 보여주기
+        ipFinal.style.display = 'none';
+        ipDummy.textContent = '(조회중...)';
 
-        const steps = Array.from(ipStepsEl.querySelectorAll('li'));
-        steps.forEach((stepEl, i) => {
-          const t = setTimeout(() => {
-            stepEl.classList.add('done');
-          }, 700 + i * 800);
-          ipTimers.push(t);
-        });
+        // 1) 사용자 공인 IP 조회 (api.ipify 사용)
+        let userIp = null;
+        try {
+          const res = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+          if (res.ok) {
+            const j = await res.json();
+            if (j && j.ip) userIp = j.ip;
+          }
+        } catch (err) {
+          // 실패 시 userIp는 null로 두고 아래에서 불허 팝업 처리
+          userIp = null;
+        }
 
-        const totalDelay = 700 + steps.length * 800 + 600;
-        const finalTimer = setTimeout(() => {
-          ipFinal.textContent = '해당 아이피는 유니온 밴블리온의 서버에서 승인된 아이피가 아닙니다.';
-          ipFinal.classList.remove('accept');
+        if (userIp) {
+          ipDummy.textContent = userIp;
+        } else {
+          ipDummy.textContent = '(IP 조회 실패)';
+        }
+
+        // 2) allowlist 조회 및 검사
+        // 기본 동작: allowlist로부터 일치 항목을 찾으면 모달 내부에서 승인 표시,
+        // 일치하지 않거나 allowlist 호출 실패(CORS 등)면 새 창으로 "비승인" 메시지를 띄움.
+        let allowlistText = null;
+        let allowed = false;
+
+        if (userIp) {
+          try {
+            // fetch allowlist (텍스트). 호출 주소는 관리자(사용자)가 REPLACE_WITH_ALLOWLIST_URL에 넣어야 함.
+            const allowRes = await fetch(ALLOWLIST_URL, { cache: 'no-store' });
+            if (allowRes.ok) {
+              allowlistText = await allowRes.text();
+            } else {
+              allowlistText = null;
+            }
+          } catch (err) {
+            allowlistText = null;
+          }
+
+          if (allowlistText) {
+            const lines = parseAllowlistText(allowlistText);
+            for (let entry of lines) {
+              // entry가 CIDR 형식인지 확인
+              if (entry.includes('/')) {
+                if (cidrContains(entry, userIp)) {
+                  allowed = true;
+                  break;
+                }
+              } else {
+                if (entry === userIp) {
+                  allowed = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+
+        // ipSpinner 숨기기
+        ipSpinner.style.display = 'none';
+
+        if (allowed) {
+          // 승인된 IP - 모달 내부에서 승인 문구 표시 (녹색)
+          ipFinal.textContent = '해당 아이피는 유니온 밴블리온의 서버에서 승인된 아이피입니다.';
+          ipFinal.classList.add('accept');
           ipFinal.style.display = 'block';
-        }, totalDelay);
-        ipTimers.push(finalTimer);
+          // 모달은 열린 상태로 유지 (사용자가 닫을 수 있음)
+        } else {
+          // 승인 실패 또는 allowlist 조회 실패 또는 IP 조회 실패 -> 새 창으로 거부 메시지 표시
+          // 팝업 창 생성 (간단한 메시지)
+          const popup = window.open('', '_blank', 'toolbar=0,location=0,menubar=0,width=520,height=220');
+          if (popup) {
+            popup.document.write(`
+              <!doctype html>
+              <html>
+                <head>
+                  <meta charset="utf-8">
+                  <title>접속 거부 - 밴블리온</title>
+                  <style>
+                    body{font-family:Arial,Helvetica,sans-serif;background:#111;color:#fff;margin:0;display:flex;align-items:center;justify-content:center;height:100vh}
+                    .box{max-width:460px;padding:18px;border-radius:10px;background:linear-gradient(180deg,#1a1a1a,#0d0d0d);box-shadow:0 6px 18px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03)}
+                    h1{font-size:18px;color:#ffb3b3;margin:0 0 8px 0}
+                    p{margin:0;color:#ddd;line-height:1.5}
+                    .ip{margin-top:10px;color:#ccc;font-weight:600}
+                    button{margin-top:12px;padding:8px 10px;border-radius:8px;border:0;background:#0f3b6d;color:#fff;cursor:pointer}
+                  </style>
+                </head>
+                <body>
+                  <div class="box">
+                    <h1>접속 거부</h1>
+                    <p>해당 아이피는 밴블리온에서 승인된 IP가 아닙니다.</p>
+                    <div class="ip">${userIp ? '검사된 IP: ' + userIp : 'IP 정보를 확인할 수 없습니다.'}</div>
+                    <div style="text-align:right;"><button onclick="window.close()">닫기</button></div>
+                  </div>
+                </body>
+              </html>
+            `);
+            popup.document.close();
+          } else {
+            // 팝업 차단 등으로 열리지 않을 경우, 대신 모달 내부에 불허 문구 표시
+            ipFinal.textContent = '해당 아이피는 유니온 밴블리온의 서버에서 승인된 아이피가 아닙니다.';
+            ipFinal.classList.remove('accept');
+            ipFinal.style.display = 'block';
+          }
+          // 요청하신대로 새 창으로 메시지 띄운 뒤 모달은 닫아버립니다.
+          closeIpModal();
+        }
       }
 
-      function clearIpTimers(){
-        ipTimers.forEach(t => clearTimeout(t));
-        ipTimers = [];
-      }
+      function clearIpTimers(){ /* 더 이상 타이머 사용 안함 (과거 코드 호환성) */ }
 
       function closeIpModal(){
-        clearIpTimers();
         ipModal.style.display = 'none';
         ipModal.setAttribute('aria-hidden','true');
       }
 
+      // 상위 커뮤니티 링크 클릭시 모달 오픈 및 검사 시작
       leftLinks.forEach(a => {
         a.addEventListener('click', (ev) => {
           ev.preventDefault();
@@ -807,7 +912,6 @@
 
       ipClose.addEventListener('click', closeIpModal);
       ipCloseBtn.addEventListener('click', closeIpModal);
-      ipRetryBtn.addEventListener('click', () => { openIpModal('다시검사'); });
 
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && ipModal.style.display === 'flex') closeIpModal(); });
       ipModal.addEventListener('click', (e) => { if (e.target === ipModal) closeIpModal(); });
