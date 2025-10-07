@@ -251,6 +251,48 @@
     .ip-actions button { background:transparent; border:1px solid rgba(255,255,255,0.08); color:#ddd; padding:8px 10px; border-radius:6px; cursor:pointer; font-weight:600; }
     .ip-actions button.primary { background:#0f3b6d; border-color:#0f3b6d; color:#fff; }
 
+    /* -----------------------------
+       신설 커뮤니티: 공개용 표시 (스코프: 오른쪽 community-box에 한정)
+       - 리스트 항목 앞에 작은 빨간 점 표시 (pseudo-element)
+       - 각주는 리스트 아래에 작게 표시
+       ----------------------------- */
+    .community-section .community-box:last-of-type .community-list li.public {
+      position: relative;
+      padding-left: 18px; /* 점을 위한 여백 */
+    }
+    .community-section .community-box:last-of-type .community-list li.public::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #ff7b7b, #ff3b3b);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.32);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    /* 각주(footnote) 스타일: 리스트 바로 아래, 크기는 작게, 눈에 너무 튀지 않도록 색상/크기 조정 */
+    .community-section .community-box:last-of-type .footnote {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #d6d6d6;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1;
+    }
+    .community-section .community-box:last-of-type .footnote .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #ff7b7b, #ff3b3b);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.32);
+      border: 1px solid rgba(255,255,255,0.06);
+      flex: 0 0 auto;
+    }
+
   </style>
 </head>
 <body>
@@ -392,9 +434,9 @@
         <div class="community-title">신설 커뮤니티</div>
         <ul class="community-list">
           <li><a href="#">김지원 조지는방</a></li>
-          <li><a href="#">노르웨이</a></li>
+          <li class="public"><a href="#">노르웨이</a></li>
           <li><a href="#">밴블리온 신 F조</a></li>
-          <li><a href="#">가르다라</a></li>
+          <li class="public"><a href="#">가르다라</a></li>
           <li><a href="#">하즈의 놀이터</a></li>
           <li><a href="#">체베리 실험실</a></li>
           <li><a href="#">핵사인 잡담방</a></li>
@@ -402,6 +444,12 @@
           <li><a href="#">밴블리온 올림픽</a></li>
           <li><a href="#">유니온 새벽 클럽</a></li>
         </ul>
+
+        <!-- 요청하신 각주: 유니온 새벽 클럽 아래에 작게 표시 -->
+        <div class="footnote" aria-hidden="false">
+          <span class="dot" aria-hidden="true"></span>
+          <span>은 공개용 서버 입니다</span>
+        </div>
       </div>
     </div> <!-- community-section 끝 -->
 
@@ -1101,3 +1149,4 @@
 
 </body>
 </html>
+
