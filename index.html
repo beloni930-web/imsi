@@ -117,14 +117,88 @@
     }
     .middle-box span { font-size:16px; color:#ddd; }
 
-    /* 모달 / 입력 등은 변경 없음 */
+    /* 모달 / 입력 등은 변경 없음 (기본) */
     .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; padding:20px; box-sizing:border-box; }
     .modal-content { width:420px; max-width: calc(100% - 40px); background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:18px; border-radius:12px; color:white; box-shadow:0 10px 30px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.03); backdrop-filter: blur(6px) saturate(120%); display:flex; flex-direction:column; gap:12px; }
-    .modal-close { position:absolute; top:10px; right:10px; background:transparent; color:#ddd; border:none; cursor:pointer; font-size:20px; padding:6px; border-radius:8px; transition:background .15s, color .15s; }
+
+    /* =========================
+       >>> 모달 내부 안정화 추가 규칙 (수정 사항)
+       모달에만 적용되며 외부 레이아웃에 영향 주지 않음
+       ========================= */
+    /* 모달 내부 배치 기준을 모달 박스로 고정 */
+    .modal-content {
+      position: relative; /* 중요: 내부 절대 위치 요소들이 모달 박스 내부를 기준으로 위치하도록 함 */
+      box-sizing: border-box;
+      z-index: 1001;
+    }
+
+    /* 닫기 버튼이 항상 모달 내부 우상단에 위치하도록 (모달 외부 기준 아님) */
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      color: #ddd;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      padding: 6px;
+      border-radius: 8px;
+      transition: background .15s, color .15s;
+      z-index: 1010; /* 모달 콘텐츠보다 위에 보이게 */
+    }
     .modal-close:hover { background: rgba(255,255,255,0.02); color:#fff; }
+
+    /* 모달 브랜드/헤더 영역 정렬 */
+    .modal-inner { display:flex; gap:12px; align-items:center; }
+    .modal-brand { display:flex; gap:12px; align-items:center; }
+    .modal-brand img { width:56px; height:56px; border-radius:8px; flex:0 0 auto; }
+    .modal-brand h2 { margin:0; font-size:18px; }
+    .modal-brand p { margin: 4px 0 0 0; color:#ccc; font-size:13px; }
+
+    /* 입력 필드 블록 고정 (외부 스타일 영향 차단) */
+    .field { display:block; margin-top:8px; width:100%; }
     input[type="email"], input[type="password"], input[type="text"] { width:100%; margin:8px 0 0 0; padding:12px 44px 12px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.4); color:#fff; outline:none; font-size:14px; box-sizing:border-box; }
-    .primary-btn { width:100%; background: linear-gradient(90deg,#0f61b0,#0a3e7a); color:#fff; box-shadow:0 6px 18px rgba(15,97,176,0.16); border:1px solid rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:bold; }
+
+    /* 비밀번호 필드 토글(눈 아이콘) 고정 위치 */
+    .password-field { position: relative; }
+    .password-field .pw-toggle {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.04);
+      color: #ddd;
+      padding: 6px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    /* 모달 내 액션 라인 정렬 */
+    .modal-actions { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:8px; }
+
+    /* 대체 로그인 버튼(모달 내부) - 그룹에서 균등분배 */
     .alt-btn { flex:1; padding:8px 10px; background:transparent; border:1px solid rgba(255,255,255,0.06); color:#ddd; border-radius:8px; font-size:13px; cursor:pointer; }
+
+    /* 닫기 등 접근성 키보드 포커스 안정성 */
+    .modal-close:focus, .pw-toggle:focus, .primary-btn:focus, .alt-btn:focus { outline: 2px solid rgba(255,255,255,0.06); outline-offset: 2px; }
+
+    /* 작게 줄어드는 화면에서 모달 폭을 더 안전하게 유지 */
+    @media (max-width:480px) {
+      .modal-content { width: calc(100% - 40px); max-width: calc(100% - 40px); padding:14px; }
+      .modal-brand p { display:block; font-size:12px; color:#ccc; }
+    }
+
+    /* =========================
+       기존 모달/입력 스타일 계속
+       (이미 선언된 항목과 중복되지 않음)
+       ========================= */
+
+    .modal-close:hover { background: rgba(255,255,255,0.02); color:#fff; }
+    .primary-btn { width:100%; background: linear-gradient(90deg,#0f61b0,#0a3e7a); color:#fff; box-shadow:0 6px 18px rgba(15,97,176,0.16); border:1px solid rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:bold; }
 
     /* 프리젠테이션 */
     .presentation-carousel { width:100%; height:170px; border-radius:10px; overflow:hidden; position:relative; background: linear-gradient(180deg,#2a2a2a,#232323); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); flex:0 0 170px; }
