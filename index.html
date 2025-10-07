@@ -746,7 +746,7 @@
       }
 
       presDots.forEach((dot, i) => {
-        dot.addEventListener("click", () => {
+        dot.addEventListener('click', () => {
           presShow(i);
           resetPresInterval();
         });
@@ -940,6 +940,26 @@
         });
       });
 
+      // --- 추가: 오른쪽(신설 커뮤니티) 링크들 중 특정 항목(노르웨이, 가르다라)을 제외한
+      // 나머지 링크들도 IP 조회 모달을 열도록 연결합니다.
+      // (오직 이 동작만 추가됨 — 다른 코드/구조는 변경되지 않음)
+      const rightLinks = document.querySelectorAll('.community-section .community-box:last-of-type .community-list a');
+      // 제외할 커뮤니티 이름 (정확히 텍스트와 일치하는 항목은 모달을 열지 않음)
+      const excluded = ['노르웨이', '가르다라'];
+
+      rightLinks.forEach(a => {
+        const txt = (a.textContent || '').trim();
+        if (excluded.includes(txt)) {
+          // 제외된 항목은 기존 동작 그대로 유지 (이 코드에서는 이벤트를 추가하지 않음)
+          return;
+        }
+        a.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          const name = txt || '커뮤니티';
+          openIpModal(name);
+        });
+      });
+
       ipClose.addEventListener('click', closeIpModal);
       ipCloseBtn.addEventListener('click', closeIpModal);
 
@@ -1081,10 +1101,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
-
